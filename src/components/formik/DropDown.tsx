@@ -1,24 +1,25 @@
 "use client";
+
 import { Field, FieldProps, ErrorMessage } from "formik";
 import Select from "react-dropdown-select";
 import React from "react";
 
-interface Option {
+type TOption = {
   value: string; // Adjust based on the type of values in your options
   name: string;
-}
+};
 
-interface DropdownProps {
+type TDropdownProps = {
   label?: string;
-  options: Option[];
+  options: TOption[];
   placeholder?: string;
   searchable?: boolean;
   name: string;
   multi?: boolean;
   prefix?: string;
-}
+};
 
-const Dropdown: React.FC<DropdownProps> = ({
+const Dropdown: React.FC<TDropdownProps> = ({
   label,
   options,
   placeholder = "Select...",
@@ -46,14 +47,14 @@ const Dropdown: React.FC<DropdownProps> = ({
           return (
             <Select
               className="react-dropdown-select-custom-style"
+              dropdownPosition="auto"
               labelField="name"
-              valueField="value"
+              multi={multi}
+              options={options}
               placeholder={placeholder}
               searchable={searchable}
-              options={options}
-              multi={multi}
+              valueField="value"
               values={selectedValues}
-              dropdownPosition="auto"
               onChange={(value) => {
                 const selectedValue = multi
                   ? value.map((v) => v.value)
@@ -65,7 +66,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           );
         }}
       </Field>
-      <ErrorMessage name={name} component="p" className="text-danger" />
+      <ErrorMessage className="text-danger" component="p" name={name} />
     </div>
   );
 };
