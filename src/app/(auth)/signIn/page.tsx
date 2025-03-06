@@ -1,12 +1,15 @@
 "use client";
 
 import FormikInput from "@/src/components/formik/FormikInput";
-// import { useAllPostsQuery } from "@/src/redux/features/post/postApi";
-// import { useAppDispatch } from "@/src/redux/hooks";
+import { useSignInMutation } from "@/src/redux/features/auth/authApi";
+import { verifyToken } from "@/src/utils/verifyToken";
+import { useAppDispatch } from "@/src/redux/hooks";
 import { Button } from "@heroui/button";
 import { Form, Formik } from "formik";
 import Link from "next/link";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { setUser, TUser } from "@/src/redux/features/auth/authSlice";
 
 type TSignInValue = {
   email: string;
@@ -14,12 +17,23 @@ type TSignInValue = {
 };
 
 const Signin = () => {
-  //   const [signin] = useAllPostsQuery("");
-  //   const dispatch = useAppDispatch();
-  //   const router = useRouter();
+  const [signin] = useSignInMutation();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
-  const handleSubmit = (values: TSignInValue) => {
-    console.log("data", values);
+  const handleSubmit = async (values: TSignInValue) => {
+    const toastId = toast.loading("Login process...", { duration: 2000 });
+
+    try {
+      const res = await signin(values).unwrap();
+      const user = verifyToken(res?.data?.accessToken) as TUser;
+
+      dispatch(setUser({ user: user, token: res.data.accessToken }));
+      toast.success("login success...", { id: toastId, duration: 2000 });
+      router.push("/");
+    } catch (error: any) {
+      toast.error("Something wrong", { id: toastId, duration: 2000 });
+    }
   };
 
   return (
